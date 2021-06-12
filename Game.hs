@@ -150,6 +150,14 @@ playerNumToPlayer = \case
   Player3 -> #gamePlayer3
   Player4 -> #gamePlayer4
 
+-- set the human players --
+playerNumToNum :: PlayerNum -> Int
+playerNumToNum = \case
+  Player1 -> 1
+  Player2 -> 2
+  Player3 -> 3
+  Player4 -> 4
+
 -- gets the ship lens from the ship number
 gameShipByNum :: ShipNum -> Lens' Game Int
 gameShipByNum = \case
@@ -315,16 +323,24 @@ handleDraftBegan = do
     orderOfDraft :: [PlayerNum]
     orderOfDraft = concat $ replicate 3 order
 
-    p1 :: PlayerNum
-    p1 = head orderOfDraft
+  -- we will rename
+    playerN :: PlayerNum
+    playerN = head orderOfDraft
 
   modify @Game (\game -> game
     & #gameUndraftedCards .~ piles
     & #gameDraftOrder .~ orderOfDraft
-    & case p1 of
-      Player1 -> setStateDraftPickPlayer
-      _ -> setStateDraftPickAI
+    & if isPlayerHuman game0 playerN
+        then setStateDraftPickPlayer
+        else setStateDraftPickAI
     )
+
+-- determine human or ai
+isPlayerHuman :: Game -> PlayerNum -> Bool
+isPlayerHuman game player = playerNum <= humans
+  where 
+    humans = gameNumHuman game
+    playerNum = playerNumToNum player
 
 -- Handles the draft.
 handleDraftPickPlayer
@@ -333,10 +349,11 @@ handleDraftPickPlayer
   => Int
   -> m ()
 handleDraftPickPlayer x = do
+  playerNum :: PlayerNum <- head <$> use @Game #gameDraftOrder
   pickedCards :: (Card, Card) <- zoomy @Game #gameUndraftedCards (pluck' x)
-  modifying @Game (#gamePlayer1 . #playerHand) (pickedCards ^.. both ++)
+  modifying @Game (playerNumToPlayer playerNum . #playerHand) (pickedCards ^.. both ++)
   modifying @Game #gameDraftOrder tail
-  tell ["Player1 picks " ++ ppCard (fst pickedCards)]
+  tell [show playerNum ++ " picks " ++ ppCard (fst pickedCards)]
 
   toPick <- use @Game #gameUndraftedCards
   modify
@@ -345,9 +362,9 @@ handleDraftPickPlayer x = do
     else \game ->
       let p = head $ gameDraftOrder game
       in game
-        & case p of
-          Player1 -> setStateDraftPickPlayer
-          _ -> setStateDraftPickAI
+        & if isPlayerHuman game p
+        then setStateDraftPickPlayer
+        else setStateDraftPickAI
 
 -- Handles the draft.
 handleDraftPickAI
@@ -369,9 +386,9 @@ handleDraftPickAI = do
       let p = head order
       in game
         & #gameDraftOrder .~ order
-        & case p of
-          Player1 -> setStateDraftPickPlayer
-          _ -> setStateDraftPickAI
+        & if isPlayerHuman game p
+        then setStateDraftPickPlayer
+        else setStateDraftPickAI
 
 -- Drafts cards for an AI player
 -- Currently picks randomly
