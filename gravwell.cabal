@@ -6,7 +6,7 @@ version: 0
 executable gravwell
   build-depends:
     ansi-terminal,
-    base,
+    base >=4.9 && <4.15,
     containers,
     random,
     random-shuffle,
