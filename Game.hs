@@ -84,8 +84,8 @@ data ShipNum
   deriving stock (Bounded, Enum, Eq, Show)
 
 -- The initial game
-initialGame :: Game
-initialGame =
+initialGame :: Int -> Game
+initialGame players =
   Game
     { gamePlayer1 = Player 0 []
     , gamePlayer2 = Player 0 []
@@ -98,7 +98,7 @@ initialGame =
     , gameUnplayedCards = []
     , gameUndraftedCards = []
     , gameDraftOrder = []
-    , gameNumHuman = 1
+    , gameNumHuman = players
     } & setStateDraftBegan
 
 -- The current number of players supported

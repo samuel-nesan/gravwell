@@ -32,18 +32,18 @@ debug =
 main :: IO ()
 main = do
   hSetBuffering stdout NoBuffering
-  initialGame' :: Game <- getPlayers initialGame
-  print initialGame'
-  loop [] initialGame'
+  players <- getPlayers
+  -- initialGame players
+  loop [] (initialGame players)
   
 -- User Inputs the number of Players
-getPlayers :: Game -> IO Game
-getPlayers game = do 
+getPlayers :: IO Int
+getPlayers = do 
   putStrLn "Please enter the number of human players (< 4)" 
   players <- getInt 
   if players > 4
-    then getPlayers game
-    else return (setPlayers players game)
+    then getPlayers
+    else return players
 
 loop :: [String] -> Game -> IO ()
 loop output game = do
