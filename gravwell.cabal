@@ -6,7 +6,7 @@ version: 0
 executable gravwell
   build-depends:
     ansi-terminal,
-    base >=4.9 && <4.15,
+    base,
     containers,
     random,
     random-shuffle,
@@ -14,7 +14,7 @@ executable gravwell
     generic-lens,
     MonadRandom,
     mtl,
-    fused-effects == 1.1.0.0,
+    fused-effects,
     fused-effects-lens,
   default-extensions:
     BlockArguments

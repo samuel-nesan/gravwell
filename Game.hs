@@ -32,6 +32,7 @@ data Game = Game
   , gameUnplayedCards :: [(PlayerNum, Card)]
   , gameUndraftedCards :: [(Card, Card)]
   , gameDraftOrder :: [PlayerNum]
+  , gameNumHuman :: Int
   } deriving stock (Show, Generic)
 
 -- The current game state to be parsed by the UI
@@ -97,6 +98,7 @@ initialGame =
     , gameUnplayedCards = []
     , gameUndraftedCards = []
     , gameDraftOrder = []
+    , gameNumHuman = 1
     } & setStateDraftBegan
 
 -- The current number of players supported
@@ -188,6 +190,11 @@ gameShipsList game =
   [ gameDerelict1 game
   , gameDerelict2 game
   ] ++ map (view #playerShip) (gamePlayers game)
+
+-- Sets the number of Players -- 
+setPlayers :: Int -> Game -> Game
+setPlayers players game = 
+  game { gameNumHuman = players }
 
 -- Sets the game state of this Game to PickCard
 setStatePickCard :: Game -> Game
